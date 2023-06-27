@@ -1,11 +1,83 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <link rel=”stylesheet” href=”https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css”rel=”nofollow” integrity=”sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm” crossorigin=”anonymous”>
     </head>
     <body>
-        <title>
-            Barcode Scanner
-        </title>
+        <label>Enter number of visitors</label>
+        <select id="dropdwn" multiple>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+        </select>
+        <select id="reservationType" required>
+            <option>Beach Seating</option>
+            <option>Fofa's Restaurant</option>
+            <option>The Mind Space</option>
+        </select>
+        <input type="date" id="visit-date" name="visit-date" required>
+        <div id="formEntry">
+            <form id="form"></form>
+            <button type="submit" id="generateCode">Generate QR Code</button>
+        </div>
+        <div id="qr-code"></div>
     </body>
+    <script>
+        const dropDown = document.getElementById("dropdwn")
+        const reservationDropDown = document.getElementById('reservationType')
+        const date = document.getElementById("visit-date")
+        const form = document.getElementById("form")
+        const submitBtn = document.getElementById("generateCode")
+        const qrCode = document.getElementById('qr-code');
+        
+        const guestList = []
+        var visitorsNo = 0
+
+        dropDown.addEventListener('change', () => {
+            form.innerHTML = ''
+            visitorsNo = dropDown.value
+            console.log(visitorsNo)
+            for(let i = 0; i < visitorsNo; i++){
+                const nameLabel = document.createElement('label')
+                nameLabel.textContent = 'Guest Name#' + i;
+
+                const nameInput = document.createElement('input')
+                nameInput.name = `visitor-${i+1}`;
+                nameInput.id = `visitor-${i+1}`;
+                nameInput.placeholder = `Enter name for visitor ${i+1}`;
+                
+                form.appendChild(nameLabel)
+                form.appendChild(nameInput)
+            }
+        })
+
+        submitBtn.addEventListener('click', () => {
+            
+            qrCode.innerHTML = ''
+            reservationType = reservationDropDown.value
+            reservationDate = date.value
+            for(let i = 1; i <= visitorsNo; i++){
+                const guestName = document.getElementById(`visitor-${i}`).value;
+                guestList.push(guestName);
+            }
+            const jsonData = {
+                reservationType,
+                guestList,
+                visitorsNo,
+                reservationDate
+            };
+
+            const jsonString = JSON.stringify(jsonData);
+            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(jsonString)}`;
+
+            qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code"><button>Download QR Code</button>`;
+        })
+    </script>
 </html>
