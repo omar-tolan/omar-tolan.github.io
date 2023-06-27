@@ -8,8 +8,8 @@
     <body>
         <div class="container">
             <div class="row">
-                <label class="col-lg-6 col-xs-12">Enter number of visitors</label>
-                <select class="col-lg-6 col-xs-12" id="dropdwn" class="col-md-6">
+                <label class="col-lg-6 col-xs-12  input-lg">Enter number of visitors</label>
+                <select class="col-lg-6 col-xs-12  input-lg" id="dropdwn" class="col-md-6">
                     <option>1</option>
                     <option>2</option>
                     <option>3</option>
@@ -23,19 +23,19 @@
                 </select>
             </div>
             <div class="row">
-                <select class="col-lg-6 col-xs-12" id="reservationType" required>
+                <select class="col-lg-6 col-xs-12 input-lg" id="reservationType" required>
                     <option>Beach Seating</option>
                     <option>Fofa's Restaurant</option>
                     <option>The Mind Space</option>
                 </select>
-                <input class="col-lg-6 col-xs-12" type="date" id="visit-date" name="visit-date" required>
+                <input class="col-lg-6 col-xs-12  input-lg" type="date" id="visit-date" name="visit-date" required>
             </div>
-            <div id="formEntry">
-                <form id="form" class="form-group"></form>
-                <button class="btn-primary" type="submit" id="generateCode">Generate QR Code</button>
-                <button class="btn-success" id="downloadBtn" disabled>Download QR Code</button>
+            <div id="form"></div>
+            <div class="row" id="qr-code"></div>
+            <div id="formEntry" class="row mx-auto">
+                <button class="btn-primary  input-lg" type="submit" id="generateCode">Generate QR Code</button>
+                <button class="btn  input-lg" id="downloadBtn" disabled>Download QR Code</button>
             </div>
-            <div id="qr-code"></div>
         </div>
        
     </body>
@@ -58,13 +58,13 @@
             for(let i = 0; i < visitorsNo; i++){
                 const nameLabel = document.createElement('label')
                 nameLabel.textContent = 'Guest Name#' + i;
-                nameLabel.className = "col-lg-6 col-xs-12"
+                nameLabel.className = "col-lg-6 col-xs-12  input-lg"
 
                 const nameInput = document.createElement('input')
                 nameInput.name = `visitor-${i+1}`;
                 nameInput.id = `visitor-${i+1}`;
                 nameInput.placeholder = `Enter name for visitor ${i+1}`;
-                nameInput.className = "col-lg-6 col-xs-12 mb-12"
+                nameInput.className = "col-lg-6 col-xs-12  input-lg"
 
                 form.appendChild(nameLabel)
                 form.appendChild(nameInput)
