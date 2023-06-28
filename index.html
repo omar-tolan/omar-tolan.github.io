@@ -10,6 +10,7 @@
             <div class="row">
                 <label class="col-lg-6 col-xs-12  input-lg">Enter number of visitors</label>
                 <select class="col-lg-6 col-xs-12  input-lg" id="dropdwn" class="col-md-6">
+                    <option>0</option>
                     <option>1</option>
                     <option>2</option>
                     <option>3</option>
@@ -79,6 +80,10 @@
             qrCode.innerHTML = ""
             reservationType = reservationDropDown.value
             reservationDate = date.value
+            if(reservationDate == ""){
+                alert("Please Enter Reservation Date!")
+                return
+            }
             data = nameInput.value.replace(/[\s\n]+/g, "") + "~"
             let guest = {}
             let qrString = ""
@@ -98,7 +103,6 @@
                     }
                     if(name!=""){
                         guest.name = name
-                        console.log(guest.name)
                         strLen = name.length
                         i = i + strLen - 1
                     }
@@ -118,7 +122,6 @@
                     }
                     if(number!=""){
                         guest.number = number
-                        console.log(guest.number)
                         i = i + numLen - 1
                         nameLen = 0
                         linkLen = 0
@@ -142,7 +145,6 @@
                         link = link + ".com"
                         linkLen = linkLen + 4
                         guest.link = link
-                        console.log(guest.link)
                         i = i + linkLen - 1
                         numLen = 0
                         nameLen = 0
@@ -154,10 +156,11 @@
                     continue
                 }
             }
-            console.log(guestList)
             if(guestList.length != visitorsNo){
-                //console.log("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
-                //return;
+                alert("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
+                data = ""
+                guestList.length = 0
+                return;
             }
             qrCode.innerHTML = ""
             qrString = qrString + "Reservation Type: " + reservationType + " | Number of Guests: " + visitorsNo + " | Reservation Date: " + reservationDate + " | Guests List: "
@@ -165,36 +168,9 @@
             guestList.forEach(guest => {
                 qrString = qrString + guest.name + "__"
             });
-            console.log(qrString)
             const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${qrString}`;
             qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
             downloadBtn.disabled = false;
-            /*
-            qrCode.innerHTML = ''
-            reservationType = reservationDropDown.value
-            reservationDate = date.value
-            for(let i = 1; i <= visitorsNo; i++){
-                const guestName = document.getElementById(`visitor-${i}`).value;
-                guestList.push(guestName);
-            }
-            var data = "reservation type: " + reservationType + "Guests Number: " + visitorsNo + "\nGuests: "
-            guestList.forEach(guest => {
-                data = data + guest + " ";
-            });
-            data = data + "\n reservation date: " + reservationDate
-            const jsonData = {
-                reservationType,for
-                guestList,
-                visitorsNo,
-                reservationDate
-            };
-            console.log(data)
-            const jsonString = JSON.stringify(jsonData);
-            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${data}`;
-
-            qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
-            downloadBtn.disabled = false;
-            */
         })
 
         downloadBtn.addEventListener('click', () => {
