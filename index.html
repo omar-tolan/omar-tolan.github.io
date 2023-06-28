@@ -46,33 +46,98 @@
         const date = document.getElementById("visit-date")
         const form = document.getElementById("form")
         const submitBtn = document.getElementById("generateCode")
+        const nameLabel = document.createElement('label')
+        const nameInput = document.createElement('input')
         const qrCode = document.getElementById('qr-code');
-        
-        const guestList = []
-        var visitorsNo = 0
 
+        const guestList = []
+        const guestData = []
+        var visitorsNo = 0
+        
         dropDown.addEventListener('change', () => {
             form.innerHTML = ''
             visitorsNo = dropDown.value
-            console.log(visitorsNo)
-            for(let i = 0; i < visitorsNo; i++){
-                const nameLabel = document.createElement('label')
-                nameLabel.textContent = 'Guest Name#' + i;
-                nameLabel.className = "col-lg-6 col-xs-12  input-lg"
 
-                const nameInput = document.createElement('input')
-                nameInput.name = `visitor-${i+1}`;
-                nameInput.id = `visitor-${i+1}`;
-                nameInput.placeholder = `Enter name for visitor ${i+1}`;
-                nameInput.className = "col-lg-6 col-xs-12  input-lg"
-
-                form.appendChild(nameLabel)
-                form.appendChild(nameInput)
-            }
+            nameLabel.textContent = 'Reservation Data';
+            nameLabel.className = "col-lg-6 col-xs-12  input-lg"
+        
+            nameInput.name = `data`;
+            nameInput.id = `data`;
+            nameInput.placeholder = `Paste Reservation Data`;
+            nameInput.className = "col-lg-6 col-xs-12  input-lg"
+            
+            form.appendChild(nameLabel)
+            form.appendChild(nameInput)
         })
+        
 
         submitBtn.addEventListener('click', () => {
+            qrCode.innerHTML = ""
+            reservationType = reservationDropDown.value
+            reservationDate = date.value
+            data = nameInput.value.replace(/[\s\n]+/g, "") + "~"
+            let guest = {}
+            let qrString = ""
+            for (let i = 0; i < data.length; i++) {
+                if(data[i] == '~'){break}
+                let name = ""
+                if(data[i] == 'e' && data[i+1] == ':'){
+                    let j = i + 2
+                    while(data.slice(j, j+6) != "Number"){
+                        name = name + data[j]
+                        j++;
+                    }
+                    if(name!=""){
+                        guest.name = name
+                        console.log(guest.name)
+                    }
+                    continue
+                }
+                if(data[i] == 'r' && data[i+1] == ':'){
+                    let j = i + 2
+                    let number = ""
+                    while(data.slice(j, j+6) != "Social"){
+                        number = number + data[j]
+                        j++;
+                    }
+                    if(number!=""){
+                        guest.number = number
+                        console.log(guest.number)
+                    }
+                    continue
+                }
+                if(data[i] == 'k' && data[i+1] == ':'){
+                    let j = i + 2
+                    let link = ""
+                    while(data.slice(j, j+4) != "Name"){
+                        if(data[j] == '~'){break}
+                        link = link + data[j]
+                        j++;
+                    }
+                    if(link!=""){
+                        guest.link = link
+                        console.log(guest.link)
+                        guestList.push(guest)
+                        guest = {}
+                    }
+                    continue
+                }
+            }
+            if(guestList.length != visitorsNo){
+                //console.log("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
+                //return;
+            }
+            qrCode.innerHTML = ""
+            qrString = qrString + "Reservation Type: " + reservationType + " | Number of Guests: " + visitorsNo + " | Reservation Date: " + reservationDate + " | Guests List: "
             
+            guestList.forEach(guest => {
+                qrString = qrString + guest.name + "__"
+            });
+            console.log(qrString)
+            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${qrString}`;
+            qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+            downloadBtn.disabled = false;
+            /*
             qrCode.innerHTML = ''
             reservationType = reservationDropDown.value
             reservationDate = date.value
@@ -80,23 +145,31 @@
                 const guestName = document.getElementById(`visitor-${i}`).value;
                 guestList.push(guestName);
             }
+            var data = "reservation type: " + reservationType + "Guests Number: " + visitorsNo + "\nGuests: "
+            guestList.forEach(guest => {
+                data = data + guest + " ";
+            });
+            data = data + "\n reservation date: " + reservationDate
             const jsonData = {
-                reservationType,
+                reservationType,for
                 guestList,
                 visitorsNo,
                 reservationDate
             };
-
+            console.log(data)
             const jsonString = JSON.stringify(jsonData);
-            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(jsonString)}`;
+            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${data}`;
 
             qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
             downloadBtn.disabled = false;
+            */
         })
 
         downloadBtn.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'qr-code.png';
+
+            
             link.href = qrCode.querySelector('img').src;
             link.click();
         })
