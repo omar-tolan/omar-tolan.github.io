@@ -53,6 +53,10 @@
         const guestList = []
         const guestData = []
         var visitorsNo = 0
+
+        function isAlphabet(char) {
+            return /^[a-zA-Z]$/.test(char);
+        }
         
         dropDown.addEventListener('change', () => {
             form.innerHTML = ''
@@ -78,51 +82,79 @@
             data = nameInput.value.replace(/[\s\n]+/g, "") + "~"
             let guest = {}
             let qrString = ""
-            for (let i = 0; i < data.length; i++) {
+            let nameLen = 0
+            let numLen = 0
+            let linkLen = 0
+
+            for(let i = 0; i < data.length; i++) {
                 if(data[i] == '~'){break}
                 let name = ""
-                if(data[i] == 'e' && data[i+1] == ':'){
-                    let j = i + 2
-                    while(data.slice(j, j+6) != "Number"){
+                if(isAlphabet(data[i]) && data.slice(i, i+5)!="https" && nameLen == 0){
+                    j = i
+                    while(isAlphabet(data[j]) && data.slice(j, j+5)!="https"){
                         name = name + data[j]
                         j++;
+                        nameLen++
                     }
                     if(name!=""){
                         guest.name = name
                         console.log(guest.name)
+                        strLen = name.length
+                        i = i + strLen - 1
+                    }
+                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
+                        guestList.push(guest)
+                        guest = {}
                     }
                     continue
                 }
-                if(data[i] == 'r' && data[i+1] == ':'){
-                    let j = i + 2
+                if(!isAlphabet(data[i]) && numLen == 0){
+                    j = i
                     let number = ""
-                    while(data.slice(j, j+6) != "Social"){
+                    while(!isAlphabet(data[j])){
                         number = number + data[j]
                         j++;
+                        numLen++
                     }
                     if(number!=""){
                         guest.number = number
                         console.log(guest.number)
+                        i = i + numLen - 1
+                        nameLen = 0
+                        linkLen = 0
+                    }
+                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
+                        guestList.push(guest)
+                        guest = {}
                     }
                     continue
                 }
-                if(data[i] == 'k' && data[i+1] == ':'){
-                    let j = i + 2
+                if(data.slice(i, i+5)=="https" && linkLen == 0){
+                    j = i
                     let link = ""
-                    while(data.slice(j, j+4) != "Name"){
-                        if(data[j] == '~'){break}
+                    while(data.slice(j, j+4) != ".com"){
                         link = link + data[j]
+                        linkLen++
                         j++;
                     }
+            
                     if(link!=""){
+                        link = link + ".com"
+                        linkLen = linkLen + 4
                         guest.link = link
                         console.log(guest.link)
+                        i = i + linkLen - 1
+                        numLen = 0
+                        nameLen = 0
+                    }
+                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
                         guestList.push(guest)
                         guest = {}
                     }
                     continue
                 }
             }
+            console.log(guestList)
             if(guestList.length != visitorsNo){
                 //console.log("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
                 //return;
