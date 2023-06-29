@@ -1,186 +1,259 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <label class="col-lg-6 col-xs-12  input-lg">Enter number of visitors</label>
-                <select class="col-lg-6 col-xs-12  input-lg" id="dropdwn" class="col-md-6">
-                    <option>0</option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option> 
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                </select>
-            </div>
-            <div class="row">
-                <select class="col-lg-6 col-xs-12 input-lg" id="reservationType" required>
-                    <option>Beach Seating</option>
-                    <option>Fofa's Restaurant</option>
-                    <option>The Mind Space</option>
-                </select>
-                <input class="col-lg-6 col-xs-12  input-lg" type="date" id="visit-date" name="visit-date" required>
-            </div>
-            <div id="form"></div>
-            <div class="row" id="qr-code"></div>
-            <div id="formEntry" class="row mx-auto">
-                <button class="btn-primary  input-lg" type="submit" id="generateCode">Generate QR Code</button>
-                <button class="btn  input-lg" id="downloadBtn" disabled>Download QR Code</button>
-            </div>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <label class="col-lg-6 col-xs-12  input-lg">Enter number of visitors</label>
+            <select class="col-lg-6 col-xs-12  input-lg" id="dropdwn" class="col-md-6">
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+            </select>
         </div>
-       
-    </body>
-    <script>
-        const downloadBtn = document.getElementById("downloadBtn");
-        const dropDown = document.getElementById("dropdwn")
-        const reservationDropDown = document.getElementById('reservationType')
-        const date = document.getElementById("visit-date")
-        const form = document.getElementById("form")
-        const submitBtn = document.getElementById("generateCode")
-        const nameLabel = document.createElement('label')
-        const nameInput = document.createElement('input')
-        const qrCode = document.getElementById('qr-code');
+        <div class="row">
+            <select class="col-lg-6 col-xs-12 input-lg" id="reservationType" required>
+                <option>Beach Seating</option>
+                <option>Fofa's Restaurant</option>
+                <option>The Mind Space</option>
+            </select>
+            <input class="col-lg-6 col-xs-12  input-lg" type="date" id="visit-date" name="visit-date" required>
+        </div>
+        <div id="form"></div>
+        <div class="row" id="qr-code"></div>
+        <div id="formEntry" class="row mx-auto">
+            <button class="btn-primary  input-lg" type="submit" id="generateCode">Generate QR Code</button>
+            <button class="btn  input-lg" id="downloadBtn" disabled>Download QR Code</button>
+        </div>
+    </div>
 
-        const guestList = []
-        const guestData = []
-        var visitorsNo = 0
+</body>
+<script>
+    const SHEET_ID = "1arDLmqXkqY0jhEMw1VQZ5pAqfY3atjL_X8t8aGXp7a8";
+    const ACCESS_TOKEN = "ya29.a0AWY7CkkS7UhDxmA1hmADkvm4nL6QutmqIaLj4mzVJPW9bFPtoe8JaKiLvK9oZjDxhe_LfoPCDdbN_gODiTeUuXQSoEqzyqIa1QiYT2IRCFHOhCFnrGy5AjMrhiGNTJNaN6vR0ckznzqwCpaoObJz1OVdwzATaCgYKAZQSARMSFQG1tDrp7PEQw0jl8oFgmvAFdjN6nw0163"
+    const downloadBtn = document.getElementById("downloadBtn");
+    const dropDown = document.getElementById("dropdwn")
+    const reservationDropDown = document.getElementById('reservationType')
+    const date = document.getElementById("visit-date")
+    const form = document.getElementById("form")
+    const submitBtn = document.getElementById("generateCode")
+    const nameLabel = document.createElement('label')
+    const nameInput = document.createElement('input')
+    const qrCode = document.getElementById('qr-code');
 
-        function isAlphabet(char) {
-            return /^[a-zA-Z]$/.test(char);
+    const guestList = []
+    const guestData = []
+    var visitorsNo = 0
+
+    function isAlphabet(char) {
+        return /^[a-zA-Z]$/.test(char);
+    }
+
+    dropDown.addEventListener('change', () => {
+        form.innerHTML = ''
+        visitorsNo = dropDown.value
+
+        nameLabel.textContent = 'Reservation Data';
+        nameLabel.className = "col-lg-6 col-xs-12  input-lg"
+
+        nameInput.name = `data`;
+        nameInput.id = `data`;
+        nameInput.placeholder = `Paste Reservation Data`;
+        nameInput.className = "col-lg-6 col-xs-12  input-lg"
+
+        form.appendChild(nameLabel)
+        form.appendChild(nameInput)
+    })
+
+
+    submitBtn.addEventListener('click', () => {
+        qrCode.innerHTML = ""
+        reservationType = reservationDropDown.value
+        reservationDate = date.value
+        if (reservationDate == "") {
+            alert("Please Enter Reservation Date!")
+            return
         }
-        
-        dropDown.addEventListener('change', () => {
-            form.innerHTML = ''
-            visitorsNo = dropDown.value
+        data = nameInput.value.replace(/[\s\n]+/g, "") + "~"
+        let guest = {}
+        let qrString = ""
+        let csvString = ""
+        let row = []
+        let nameLen = 0
+        let numLen = 0
+        let linkLen = 0
 
-            nameLabel.textContent = 'Reservation Data';
-            nameLabel.className = "col-lg-6 col-xs-12  input-lg"
-        
-            nameInput.name = `data`;
-            nameInput.id = `data`;
-            nameInput.placeholder = `Paste Reservation Data`;
-            nameInput.className = "col-lg-6 col-xs-12  input-lg"
-            
-            form.appendChild(nameLabel)
-            form.appendChild(nameInput)
-        })
-        
-
-        submitBtn.addEventListener('click', () => {
-            qrCode.innerHTML = ""
-            reservationType = reservationDropDown.value
-            reservationDate = date.value
-            if(reservationDate == ""){
-                alert("Please Enter Reservation Date!")
-                return
-            }
-            data = nameInput.value.replace(/[\s\n]+/g, "") + "~"
-            let guest = {}
-            let qrString = ""
-            let nameLen = 0
-            let numLen = 0
-            let linkLen = 0
-
-            for(let i = 0; i < data.length; i++) {
-                if(data[i] == '~'){break}
-                let name = ""
-                if(isAlphabet(data[i]) && data.slice(i, i+5)!="https" && nameLen == 0){
-                    j = i
-                    while(isAlphabet(data[j]) && data.slice(j, j+5)!="https"){
-                        name = name + data[j]
-                        j++;
-                        nameLen++
-                    }
-                    if(name!=""){
-                        guest.name = name
-                        strLen = name.length
-                        i = i + strLen - 1
-                    }
-                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
-                        guestList.push(guest)
-                        guest = {}
-                    }
-                    continue
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] == '~') { break }
+            let name = ""
+            if (isAlphabet(data[i]) && data.slice(i, i + 5) != "https" && nameLen == 0) {
+                j = i
+                while (isAlphabet(data[j]) && data.slice(j, j + 5) != "https") {
+                    name = name + data[j]
+                    j++;
+                    nameLen++
                 }
-                if(!isAlphabet(data[i]) && numLen == 0){
-                    j = i
-                    let number = ""
-                    while(!isAlphabet(data[j])){
-                        number = number + data[j]
-                        j++;
-                        numLen++
-                    }
-                    if(number!=""){
-                        guest.number = number
-                        i = i + numLen - 1
-                        nameLen = 0
-                        linkLen = 0
-                    }
-                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
-                        guestList.push(guest)
-                        guest = {}
-                    }
-                    continue
+                if (name != "") {
+                    guest.name = name
+                    strLen = name.length
+                    i = i + strLen - 1
                 }
-                if(data.slice(i, i+5)=="https" && linkLen == 0){
-                    j = i
-                    let link = ""
-                    while(data.slice(j, j+4) != ".com"){
-                        link = link + data[j]
-                        linkLen++
-                        j++;
-                    }
-            
-                    if(link!=""){
-                        link = link + ".com"
-                        linkLen = linkLen + 4
-                        guest.link = link
-                        i = i + linkLen - 1
-                        numLen = 0
-                        nameLen = 0
-                    }
-                    if(guest.name != undefined && guest.number != undefined && guest.link != undefined){
-                        guestList.push(guest)
-                        guest = {}
-                    }
-                    continue
+                if (guest.name != undefined && guest.number != undefined && guest.link != undefined) {
+                    guestList.push(guest)
+                    guest = {}
                 }
+                continue
             }
-            if(guestList.length != visitorsNo){
-                alert("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
-                data = ""
-                guestList.length = 0
-                return;
+            if (!isAlphabet(data[i]) && numLen == 0) {
+                j = i
+                let number = ""
+                while (!isAlphabet(data[j])) {
+                    number = number + data[j]
+                    j++;
+                    numLen++
+                }
+                if (number != "") {
+                    guest.number = number
+                    i = i + numLen - 1
+                    nameLen = 0
+                    linkLen = 0
+                }
+                if (guest.name != undefined && guest.number != undefined && guest.link != undefined) {
+                    guestList.push(guest)
+                    guest = {}
+                }
+                continue
             }
-            qrCode.innerHTML = ""
-            qrString = qrString + "Reservation Type: " + reservationType + " | Number of Guests: " + visitorsNo + " | Reservation Date: " + reservationDate + " | Guests List: "
-            
-            guestList.forEach(guest => {
-                qrString = qrString + guest.name + "__"
-            });
-            const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${qrString}`;
-            qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
-            downloadBtn.disabled = false;
-        })
+            if (data.slice(i, i + 5) == "https" && linkLen == 0) {
+                j = i
+                let link = ""
+                while (data.slice(j, j + 4) != ".com") {
+                    link = link + data[j]
+                    linkLen++
+                    j++;
+                }
 
-        downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'qr-code.png';
+                if (link != "") {
+                    link = link + ".com"
+                    linkLen = linkLen + 4
+                    guest.link = link
+                    i = i + linkLen - 1
+                    numLen = 0
+                    nameLen = 0
+                }
+                if (guest.name != undefined && guest.number != undefined && guest.link != undefined) {
+                    guestList.push(guest)
+                    guest = {}
+                }
+                continue
+            }
+        }
+        if (guestList.length != visitorsNo) {
+            alert("Incomplete data expected " + visitorsNo + " guests but got " + guestList.length)
+            data = ""
+            guestList.length = 0
+            return;
+        }
+        qrCode.innerHTML = ""
+        qrString = qrString + "Reservation Type: " + reservationType + " | Number of Guests: " + visitorsNo + " | Reservation Date: " + reservationDate + " | Guests List: "
 
-            
-            link.href = qrCode.querySelector('img').src;
-            link.click();
-        })
+        row.push(reservationDate)
+        row.push(reservationType)
 
-    </script>
+        csvString = csvString + reservationDate + ", " + reservationType
+        guestList.forEach(guest => {
+            qrString = qrString + guest.name + "__"
+            row.push(guest.name)
+            row.push(guest.number)
+            row.push(guest.link)
+            csvString = csvString + ", " + guest.name + ", " + guest.number + ", " + guest.link
+        });
+        console.log(csvString)
+        const qrUrl = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${qrString}`;
+        qrCode.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+        downloadBtn.disabled = false;
+
+        const endpointUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:E1:append?valueInputOption=RAW`;
+
+        // Define the request parameters
+        const requestParams = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(
+                {
+                    "range": "Sheet1!A1:E1",
+                    "majorDimension": "ROWS",
+                    "values": [
+                        row
+                    ],
+                }
+            )    
+
+        }
+    // Send the API request
+    fetch(endpointUrl, requestParams)
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error(error));
+        /**
+                fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        //update this token with yours. 
+                        Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        "requests": [
+                            {
+                                "appendCells": {
+                                    "sheetId": 0,
+                                    "rows": [
+                                        {
+                                           csvString 
+                                        }
+                                    ],
+                                    "fields": "*"
+                                }
+                            }
+                        ]
+        
+                    })
+                }).then(() => {
+                    console.log("Done")
+                }).catch((e) => {
+                    console.log(e)
+                })
+                **/
+
+    })
+
+    downloadBtn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = 'qr-code.png';
+
+
+        link.href = qrCode.querySelector('img').src;
+        link.click();
+    })
+
+</script>
+
 </html>
